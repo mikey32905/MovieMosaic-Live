@@ -1,0 +1,4 @@
+﻿.homeStyle {
+    background: linear-gradient(to right, rgba(61,62,66,.95) 0%, rgba(18,18,22, .80) 40%, rgba(61,62,66,.95) 100%), url("/img/mw1920_NowPlayingBG.jpg");
+    color: var(--mw-light-color);
+}
