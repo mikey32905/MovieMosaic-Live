@@ -12,12 +12,44 @@
            <img src="/img/RaidersPoster.png" class="poster-img"/>
        </div>
     </div>
-    <div class="gameBoard-controls border border-info">
-        Controls
+    <div class="controls-container rounded" data-bs-theme="dark">
+        <div>
+            <div class="mt-4">
+                <EditForm Model="formModel">
+                    <DataAnnotationsValidator />
+                    <div class="hstack gap-2">
+                        <InputText class="form-control" placeholder="Enter a movie title"
+                                   @bind-value="formModel.MovieTitle"
+                                   autocomplete="off"
+                                   autocorrect="off"
+                                   spellcheck="false" />
+                        <button class="btn btn-primary" type="submit">Guess</button>
+                    </div>
+                    <input type="hidden" @bind-value="formModel.ReleaseDate" />
+                    <ValidationMessage For="() => formModel.MovieTitle" />
+                </EditForm>
+            </div>
+            <nav class="mt-3">
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-hint-tab" 
+                            data-bs-toggle="tab"
+                            dta-bs-target="#nav-hint"
+                            type="button"
+                            role="tab"
+                            aria-selected="true">Hints</button>
+                    <button class="nav-link" id="nav-guess-tab"
+                            data-bs-toggle="tab"
+                            dta-bs-target="#nav-guess"
+                            type="button"
+                            role="tab"
+                            aria-selected="false">Guesses</button>
+                </div>
+            </nav>
+        </div>
     </div>
 
 </div>
 
 @code {
-
+    FormModel formModel = new FormModel();
 }
