@@ -33,18 +33,49 @@
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <button class="nav-link active" id="nav-hint-tab" 
                             data-bs-toggle="tab"
-                            dta-bs-target="#nav-hint"
+                            data-bs-target="#nav-hint"
                             type="button"
                             role="tab"
                             aria-selected="true">Hints</button>
                     <button class="nav-link" id="nav-guess-tab"
                             data-bs-toggle="tab"
-                            dta-bs-target="#nav-guess"
+                            data-bs-target="#nav-guess"
                             type="button"
                             role="tab"
                             aria-selected="false">Guesses</button>
                 </div>
             </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane border-0 fade show active" id="nav-hint" 
+                     role="tabpanel" aria-label="nav-hint-tab" tabindex="0">
+                     <ul class="list-group mb-3" id="Hints">
+                         <li class="list-group-item">
+                            <i class="bi bi-1-square-fill me-1">Hint 1 Goes Here</i>
+                         </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-2-square-fill me-1">Hint 2 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-3-square-fill me-1">Hint 3 Goes Here</i>
+                        </li>
+                     </ul>
+                </div>
+                <div class="tab-pane border-0 fade" id="nav-guess"
+                     role="tabpanel" aria-label="nav-guess-tab" tabindex="0">
+                    <ul class="list-group mb-3" id="Guesses">
+                        <li class="list-group-item">
+                            <i class="bi bi-1-square-fill me-1">Guess 1 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-2-square-fill me-1">Guess 2 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-3-square-fill me-1">Guess 3 Goes Here</i>
+                        </li>
+
+                    </ul>
+                </div>
+            </div>
         </div>
     </div>
 
