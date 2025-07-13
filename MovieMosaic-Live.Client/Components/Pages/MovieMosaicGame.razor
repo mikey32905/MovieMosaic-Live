@@ -10,6 +10,14 @@
     <div class="gameBoard-container border border-danger">
        <div class="poster-container">
            <img src="/img/RaidersPoster.png" class="poster-img"/>
+           <div class="poster-overlay row row-cols-3 g-0">
+              @foreach (var square in squareList)
+              {
+                  <div class="col overlay-block">
+                      
+                  </div>
+                }
+           </div>
        </div>
     </div>
     <div class="controls-container rounded" data-bs-theme="dark">
@@ -76,11 +84,52 @@
                     </ul>
                 </div>
             </div>
+            <div class="hstack gap-2 justify-content-end">
+                <button class="btn btn-info controls-btn" >Play Again</button>
+                <button class="btn controls-btn">
+                    <i class="bi bi-question-circle text-secondary"></i>
+                </button>
+                <button class="btn controls-btn" >
+                    <i class="bi bi-gear text-secondary"></i>
+                </button>
+            </div>
         </div>
     </div>
 
 </div>
 
 @code {
+
+    #region State Variables
+
     FormModel formModel = new FormModel();
+    private int squareCount = 12;
+    List<Square> squareList = new();
+
+    #endregion State Variables
+
+    #region Game Flow 
+
+    private async Task ResetGameState()
+    {
+        squareList = new();
+
+        for (int i = 1; i <= squareCount; i++)
+        {
+            Square newSquare = new();
+            squareList.Add(newSquare);
+        }
+    }
+
+    #endregion Game Flow
+
+    #region Lifecycle Events
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ResetGameState();
+    }
+
+    #endregion Lifecycle Events
+
 }
