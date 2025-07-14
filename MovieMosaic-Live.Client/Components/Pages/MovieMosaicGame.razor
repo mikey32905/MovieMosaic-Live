@@ -1,5 +1,7 @@
 ﻿@page "/movieMosaic"
 
+@rendermode InteractiveServer
+
 <div class="container-xxl text-center mt-3">
     <div>
         <img src="/img/mwMovieMosaicLogo.png" class="title-img" />
@@ -13,7 +15,7 @@
            <div class="poster-overlay row row-cols-3 g-0">
               @foreach (var square in squareList)
               {
-                  <div class="col overlay-block">
+                  <div class="col overlay-block @(square.Show ? "fade-out": "")">
                       
                   </div>
                 }
@@ -23,7 +25,7 @@
     <div class="controls-container rounded" data-bs-theme="dark">
         <div>
             <div class="mt-4">
-                <EditForm Model="formModel">
+                <EditForm Model="formModel" OnValidSubmit="HandleSubmit">
                     <DataAnnotationsValidator />
                     <div class="hstack gap-2">
                         <InputText class="form-control" placeholder="Enter a movie title"
@@ -121,6 +123,25 @@
         }
     }
 
+    private async Task HandleSubmit()
+    {
+        await showRandomSquare();
+    }
+
+    private async Task showRandomSquare()
+    {
+        Random random = new Random();
+
+        List<Square> hiddenSquares = squareList.Where(s => s.Show == false).ToList();
+
+        if (hiddenSquares.Count > 0)
+        {
+            //pick a random square from the hidden squares
+            int randomIndex = random.Next(hiddenSquares.Count());
+            hiddenSquares[randomIndex].Show = true;
+        }
+    }
+
     #endregion Game Flow
 
     #region Lifecycle Events
@@ -128,6 +149,8 @@
     protected override async Task OnInitializedAsync()
     {
         await ResetGameState();
+
+        await showRandomSquare();
     }
 
     #endregion Lifecycle Events
