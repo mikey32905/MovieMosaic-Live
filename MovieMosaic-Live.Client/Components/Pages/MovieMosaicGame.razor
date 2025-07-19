@@ -1,6 +1,7 @@
 ﻿@page "/movieMosaic"
 
 @rendermode InteractiveServer
+@inject ITMDBService tmdbService
 
 <div class="container-xxl text-center mt-3">
     <div>
@@ -9,9 +10,9 @@
     </div>
 </div>
 <div class="container-xxl game-container">
-    <div class="gameBoard-container border border-danger">
+    <div class="gameBoard-container">
        <div class="poster-container">
-           <img src="/img/RaidersPoster.png" class="poster-img"/>
+           <img src="@randomMovie.PosterPath" class="poster-img"/>
            <div class="poster-overlay row row-cols-3 g-0">
               @foreach (var square in squareList)
               {
@@ -105,12 +106,32 @@
     #region State Variables
 
     FormModel formModel = new FormModel();
+
+    private Movie randomMovie = new Movie();
+
     private int squareCount = 12;
+    private int yearStart = 1970;
+    private int yearEnd = 2025;
+    private string selectedGenres = "";
+
     List<Square> squareList = new();
 
     #endregion State Variables
 
     #region Game Flow 
+
+    private async Task NewGame()
+    {
+        randomMovie = new();
+
+        randomMovie = await tmdbService.GetRandomMovieAsync(yearStart, yearEnd, selectedGenres);
+
+        // if (randomMovie.Id > 0)
+        // {
+
+        // }
+
+    }
 
     private async Task ResetGameState()
     {
@@ -151,6 +172,16 @@
         await ResetGameState();
 
         await showRandomSquare();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || randomMovie is null)
+        {
+            await ResetGameState();
+            await NewGame();
+            StateHasChanged();
+        }
     }
 
     #endregion Lifecycle Events

@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MovieMosaic-Live</RootNamespace>
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
+    <UserSecretsId>acb95568-341a-40a4-8b0d-74a3ad30d8b9</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
