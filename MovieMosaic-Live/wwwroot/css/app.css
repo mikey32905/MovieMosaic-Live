@@ -12,12 +12,36 @@
     --mw-btn-homeactive: hsl(38, 100%, 46%);
 }
 
+html {
+    background-color: black;
+}
+
 html, body {
     font-family: var(--mw-body-font);
     font-size: var(--mw-font-size);
     height: 100%;
     min-height: 100vh;
 }
+
+body {
+    background: none;
+    height: 100%;
+}
+
+    body::before {
+        content: "";
+        top: 0;
+        left: 0;
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        background-image: url("/img/mw1920_NowPlayingBG.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center center;
+        filter: blur(15px);
+        z-index: -1;
+    }
 
 h1, h2, h3, h4, h5, h6 {
     font-family: var(--mw-title-font);

@@ -6,6 +6,6 @@ namespace MovieMosaic_Live.Client.Services
     {
         Task<Movie> GetRandomMovieAsync(int? yearStart, int? yearEnd, string? Genres);
 
-
+        Task<List<Movie>> SearchMoviesAsync(string query, int page = 1);
     }
 }

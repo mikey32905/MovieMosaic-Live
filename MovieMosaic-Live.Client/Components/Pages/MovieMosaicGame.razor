@@ -11,17 +11,16 @@
 </div>
 <div class="container-xxl game-container">
     <div class="gameBoard-container">
-       <div class="poster-container">
-           <img src="@randomMovie.PosterPath" class="poster-img"/>
-           <div class="poster-overlay row row-cols-3 g-0">
-              @foreach (var square in squareList)
-              {
-                  <div class="col overlay-block @(square.Show ? "fade-out": "")">
-                      
-                  </div>
+        <div class="poster-container">
+            <img src="@randomMovie.PosterPath" class="poster-img" />
+            <div class="poster-overlay row row-cols-3 g-0">
+                @foreach (var square in squareList)
+                {
+                    <div class="col overlay-block @(square.Show ? "fade-out" : "")">
+                    </div>
                 }
-           </div>
-       </div>
+            </div>
+        </div>
     </div>
     <div class="controls-container rounded" data-bs-theme="dark">
         <div>
@@ -33,43 +32,60 @@
                                    @bind-value="formModel.MovieTitle"
                                    autocomplete="off"
                                    autocorrect="off"
-                                   spellcheck="false" />
+                                   spellcheck="false"
+                                   @oninput="OnInputChanged" />
                         <button class="btn btn-primary" type="submit">Guess</button>
                     </div>
                     <input type="hidden" @bind-value="formModel.ReleaseDate" />
                     <ValidationMessage For="() => formModel.MovieTitle" />
+                        <!--Show the typeahead results-->
+                        @if (movies?.Any() == true)
+                        {
+                            <div class="suggestions-wrapper">
+                                <ul class="suggestion">
+                                    @foreach(var movie in movies)
+                                    {
+                                      <li>@movie.Title</li>
+                                    }
+                            </ul>
+                            </div>
+                        }
                 </EditForm>
             </div>
             <nav class="mt-3">
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-hint-tab" 
+                    <button class="nav-link active" id="nav-hint-tab"
                             data-bs-toggle="tab"
                             data-bs-target="#nav-hint"
                             type="button"
                             role="tab"
-                            aria-selected="true">Hints</button>
+                            aria-selected="true">
+                        Hints
+                    </button>
                     <button class="nav-link" id="nav-guess-tab"
                             data-bs-toggle="tab"
                             data-bs-target="#nav-guess"
                             type="button"
                             role="tab"
-                            aria-selected="false">Guesses</button>
+                            aria-selected="false">
+                        Guesses
+                    </button>
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane border-0 fade show active" id="nav-hint" 
+                <div class="tab-pane border-0 fade show active" id="nav-hint"
                      role="tabpanel" aria-label="nav-hint-tab" tabindex="0">
-                     <ul class="list-group mb-3" id="Hints">
-                         <li class="list-group-item">
+                    <ul class="list-group mb-3" id="Hints">
+                        <li class="list-group-item">
                             <i class="bi bi-1-square-fill me-1">Hint 1 Goes Here</i>
-                         </li>
+                        </li>
                         <li class="list-group-item">
                             <i class="bi bi-2-square-fill me-1">Hint 2 Goes Here</i>
                         </li>
                         <li class="list-group-item">
                             <i class="bi bi-3-square-fill me-1">Hint 3 Goes Here</i>
                         </li>
-                     </ul>
+                    </ul>
                 </div>
                 <div class="tab-pane border-0 fade" id="nav-guess"
                      role="tabpanel" aria-label="nav-guess-tab" tabindex="0">
@@ -88,11 +104,11 @@
                 </div>
             </div>
             <div class="hstack gap-2 justify-content-end">
-                <button class="btn btn-info controls-btn" >Play Again</button>
+                <button class="btn btn-info controls-btn">Play Again</button>
                 <button class="btn controls-btn">
                     <i class="bi bi-question-circle text-secondary"></i>
                 </button>
-                <button class="btn controls-btn" >
+                <button class="btn controls-btn">
                     <i class="bi bi-gear text-secondary"></i>
                 </button>
             </div>
@@ -114,23 +130,24 @@
     private int yearEnd = 2025;
     private string selectedGenres = "";
 
-    List<Square> squareList = new();
+    List<Square> squareList = [];
+    private List<Movie> movies = [];
+
+    //timers
+    private Timer? debounceTimer;
+    private Timer? inactivityTimer;
+
+    private int debounceDelay = 500; //milliseconds
 
     #endregion State Variables
 
-    #region Game Flow 
+    #region Game Flow
 
     private async Task NewGame()
     {
         randomMovie = new();
 
         randomMovie = await tmdbService.GetRandomMovieAsync(yearStart, yearEnd, selectedGenres);
-
-        // if (randomMovie.Id > 0)
-        // {
-
-        // }
-
     }
 
     private async Task ResetGameState()
@@ -180,10 +197,77 @@
         {
             await ResetGameState();
             await NewGame();
+            await showRandomSquare();
             StateHasChanged();
         }
     }
 
     #endregion Lifecycle Events
+
+    #region Search Type Ahead
+
+    private async Task SearchMovies()
+    {
+        //if search is empty and clear results.
+        if (string.IsNullOrWhiteSpace(formModel.MovieTitle))
+        {
+            movies.Clear();
+        }
+        else
+        {
+            try
+            {
+                var response = await tmdbService.SearchMoviesAsync(formModel.MovieTitle);
+
+                movies = response ?? new List<Movie>();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error searching movies: {ex.Message}");
+                movies.Clear();
+            }
+        }
+
+        //trigger a re-render to refresh UI.
+        StateHasChanged();
+    }
+
+    private void OnInputChanged(ChangeEventArgs e)
+    {
+        formModel.MovieTitle = e.Value?.ToString() ?? "";
+
+        //dispose any existing search timers
+        debounceTimer?.Dispose();
+
+        //create a new timer that calls search movies after a debounce delay
+        debounceTimer = new Timer(async _ =>
+         {
+
+             await InvokeAsync(async () =>
+         {
+             await SearchMovies();
+             ResetInactivityTimer();
+         });
+         }, null, debounceDelay, Timeout.Infinite);
+
+    }
+
+    private void ResetInactivityTimer()
+    {
+        inactivityTimer?.Dispose();
+
+        inactivityTimer = new Timer(_ =>
+        {
+            // Handle inactivity (e.g., show a message, log out, etc.)
+            InvokeAsync(() =>
+        {
+            movies.Clear();
+            StateHasChanged();
+
+        });
+        }, null, 10000, Timeout.Infinite); // 30 seconds of inactivity
+    }
+
+    #endregion Search Type Ahead
 
 }
