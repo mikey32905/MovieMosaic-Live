@@ -42,10 +42,10 @@
                         @if (movies?.Any() == true)
                         {
                             <div class="suggestions-wrapper">
-                                <ul class="suggestion">
+                                <ul class="suggestions">
                                     @foreach(var movie in movies)
                                     {
-                                      <li>@movie.Title</li>
+                                      <li @onclick="()=> SelectMovie(movie)">@movie.Title (@(DateTime.TryParse(movie.ReleaseDate, out var date)? date.Year : "Unknown"))</li>
                                     }
                             </ul>
                             </div>
@@ -266,6 +266,14 @@
 
         });
         }, null, 10000, Timeout.Infinite); // 30 seconds of inactivity
+    }
+
+    private void SelectMovie(Movie movie)
+    {
+        formModel.MovieTitle = movie.Title;
+        formModel.ReleaseDate = movie.ReleaseDate;
+        //clear search results
+        movies.Clear();
     }
 
     #endregion Search Type Ahead
