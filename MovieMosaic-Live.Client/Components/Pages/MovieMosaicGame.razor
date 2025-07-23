@@ -90,16 +90,26 @@
                 <div class="tab-pane border-0 fade" id="nav-guess"
                      role="tabpanel" aria-label="nav-guess-tab" tabindex="0">
                     <ul class="list-group mb-3" id="Guesses">
-                        <li class="list-group-item">
-                            <i class="bi bi-1-square-fill me-1">Guess 1 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-2-square-fill me-1">Guess 2 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-3-square-fill me-1">Guess 3 Goes Here</i>
-                        </li>
+                        @for (int i = 0; i < guesses.Count; i++)
+                        {
+                            var guess = guesses[i];
 
+                            if (guess.Correct)
+                            {
+                                <li class="list-group-item list-group-item-success">
+                                    <i class="bi bi-@(i+1)-square-fill me-1"></i>
+                                    <span>@guess.Title (@guess.ReleaseYear)</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="list-group-item list-group-item-danger">
+                                    <i class="bi bi-@(i + 1)-square-fill me-1">
+                                        <span>@guess.Title (@guess.ReleaseYear)</span>
+                                    </i>
+                                </li>
+                            }
+                        }
                     </ul>
                 </div>
             </div>
@@ -132,12 +142,15 @@
 
     List<Square> squareList = [];
     private List<Movie> movies = [];
+    private List<Guess> guesses = [];
 
     //timers
     private Timer? debounceTimer;
     private Timer? inactivityTimer;
 
     private int debounceDelay = 500; //milliseconds
+
+    private bool win = false;
 
     #endregion State Variables
 
@@ -146,7 +159,7 @@
     private async Task NewGame()
     {
         randomMovie = new();
-
+        win = false;
         randomMovie = await tmdbService.GetRandomMovieAsync(yearStart, yearEnd, selectedGenres);
     }
 
@@ -163,7 +176,33 @@
 
     private async Task HandleSubmit()
     {
-        await showRandomSquare();
+        //check if the guess is correct
+        if (formModel.MovieTitle?.ToLower() == randomMovie.Title?.ToLower() &&
+            formModel.ReleaseDate == randomMovie.ReleaseDate)
+        {
+            //show the movie poster
+            StateHasChanged();
+
+            //Reveal the poster
+            RevealPoster();
+
+            win = true;
+        }
+        else
+        {
+            //shows a new random square
+            await showRandomSquare();
+
+            win = false;
+        }
+
+        guesses.Add(new Guess
+        {
+            Title = formModel.MovieTitle,
+            ReleaseYear = DateTime.TryParse(formModel.ReleaseDate, out var date) ? date.Year.ToString() : "Unknown",
+            Correct = win
+        });
+
     }
 
     private async Task showRandomSquare()
@@ -180,20 +219,28 @@
         }
     }
 
+    private void RevealPoster()
+    {
+        foreach(var square in squareList)
+        {
+            square.Show = true;
+        };
+    }
+
     #endregion Game Flow
 
     #region Lifecycle Events
 
     protected override async Task OnInitializedAsync()
     {
-        await ResetGameState();
+        // await ResetGameState();
 
-        await showRandomSquare();
+        // await showRandomSquare();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender || randomMovie is null)
+        if (firstRender || randomMovie.Id == 0)
         {
             await ResetGameState();
             await NewGame();
