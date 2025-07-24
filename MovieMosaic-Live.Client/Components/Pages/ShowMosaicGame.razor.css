@@ -1,0 +1,8 @@
+﻿.title-img {
+    max-height: 150px;
+}
+
+.subTitle {
+    font-size: 1.5rem;
+    font-family: var(--mw-body-font);
+    color: var(--mw-light-color);
