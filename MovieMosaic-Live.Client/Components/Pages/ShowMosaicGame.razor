@@ -8,10 +8,102 @@
     <div>
         <img src="/img/mw1024_ShowMosaicLogo.png" class="title-img" />
         <h5 class="subTitle">Piece Together the Show, One Tile at a Time.</h5>
-    </div>ed 
+    </div>
+</div>
+<div class="container-xxl game-container">
+    <div class="gameBoard-container">
+        <div class="poster-container">
+            <img src="/img/RaidersPoster.png" class="poster-img" />
+            <div class="poster-overlay row row-cols-3 g-0">
+                @foreach (var square in squareList)
+                {
+                    <div class="col overlay-block @(square.Show ? "fade-out" : "")">
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+    <div class="controls-container rounded" data-bs-theme="dark">
+        <div>
+            <div class="mt-4">
+                <EditForm Model="showFormModel" OnValidSubmit="HandleSubmit">
+                    <DataAnnotationsValidator />
+                    <div class="hstack gap-3">
+                        <InputText class="form-control" placeholder="Enter a movie title"
+                                   @bind-value="showFormModel.ShowTitle"
+                                   autocomplete="off"
+                                   autocorrect="off"
+                                   spellcheck="false" />
+                    </div>
+                    <button class="btn btn-primary" type="submit">Guess</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 
+
 @code {
+    #region State Variables
+
+    ShowFormModel showFormModel = new ShowFormModel();
+
+    private int squareCount = 12;
+
+    List<Square> squareList = new List<Square>();
+
+    #endregion State Variables
+
+    #region Game Flow
+
+    private async Task ResetGameState()
+    {
+        squareList = new();
+
+        for (int i = 1; i <= squareCount; i++)
+        {
+            Square newSquare = new();
+            squareList.Add(newSquare);
+        }
+    }
+
+    private async Task showRandomSquare()
+    {
+        Random random = new Random();
+
+        List<Square> hiddenSquares = squareList.Where(s => s.Show == false).ToList();
+
+        if (hiddenSquares.Count > 0)
+        {
+            //pick a random square from the hidden squares
+            int randomIndex = random.Next(hiddenSquares.Count());
+            hiddenSquares[randomIndex].Show = true;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        //shows a new random square
+        await showRandomSquare();
+    }
+
+    #endregion Game Flow
+
+    #region Lifecycle Events
+
+    protected override async Task OnInitializedAsync()
+    {
+         await ResetGameState();
+
+        await showRandomSquare();
+    }
+
+
+
+
+    #endregion Lifecycle Events
 
 }
