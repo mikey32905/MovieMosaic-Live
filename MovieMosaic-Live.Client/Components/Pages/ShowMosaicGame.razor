@@ -108,6 +108,7 @@
     private string selectedGenres = "";
 
     List<Square> squareList = new List<Square>();
+    private bool win = false;
 
     #endregion State Variables
 
@@ -116,6 +117,7 @@
     private async Task NewGame()
     {
         randomTVShow = new TVShow();
+        win = false;
         randomTVShow = await tmdbService.GetRandomTVShowAsync(yearStart, yearEnd, selectedGenres);
 
     }
@@ -145,10 +147,35 @@
         }
     }
 
+    private void RevealPoster()
+    {
+        foreach (var square in squareList)
+        {
+            square.Show = true;
+        }
+        ;
+    }
+
+
     private async Task HandleSubmit()
     {
+        if (showFormModel.ShowTitle?.ToLower() == randomTVShow.Name?.ToLower())
+        {
+            StateHasChanged();
+
+            //show movie poster
+            RevealPoster();
+
+            win = true;
+        }
+        else
+        {
+            //show a new random square
+            await showRandomSquare();
+            win = false;
+        }
         //shows a new random square
-        await showRandomSquare();
+       // await showRandomSquare();
     }
 
     #endregion Game Flow
@@ -157,17 +184,18 @@
 
     protected override async Task OnInitializedAsync()
     {
-         await ResetGameState();
 
-        await showRandomSquare();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            await ResetGameState();
             // Initialize any JavaScript interop or other one-time setup here
             await NewGame();
+            await showRandomSquare();
+            StateHasChanged();
         }
     }
 
