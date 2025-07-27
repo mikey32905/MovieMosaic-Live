@@ -132,5 +132,83 @@ namespace MovieMosaic_Live.Services
 
             return response.Results.Where(r => r.VoteCount > 150).ToList();
         }
+
+        public async Task<TVShow> GetRandomTVShowAsync(int? yearStart, int? yearEnd, string? Genres)
+        {
+            //get a TV Show based on the specific year range and genres.
+            string firstAirDateGte = "";
+            string firstAirDateLte = "";
+
+            string baseUrl = "discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&sort_by=vote_count.desc&volt_count.gte=200";
+
+
+            TVShow randomTVShow = new TVShow();
+
+            if (yearStart is not null && yearEnd is not null && yearStart < yearEnd)
+            {
+                firstAirDateGte = $"{yearStart}-01-01";
+                firstAirDateLte = $"{yearEnd}-12-31";
+                baseUrl += $"&first_air_date.gte={firstAirDateGte}&first_air_date.lte={firstAirDateLte}";
+            }
+
+            if (!string.IsNullOrEmpty(Genres))
+            {
+                baseUrl += $"&with_genres={Genres}";
+            }
+
+            int randomPage = _random.Next(1, 21); // Random page number between 1 and 20
+            string discoverUrl = $"{baseUrl}&page={randomPage}";
+
+            //get a random TV Show from discovered page.
+            var initialResponse = _http.GetFromJsonAsync<TVShowResponse>(discoverUrl, _jsonOptions)
+                .GetAwaiter().GetResult() ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Could not find a random TV Show.");
+
+            //how many pages found?
+            int totalPages = Math.Min(initialResponse.TotalPages, 500);
+
+            //we need to filter TV Shows that do not have a poster.
+            var filteredTVShows = initialResponse.Results.Where(m => !string.IsNullOrEmpty(m.PosterPath)).ToList();
+
+            if (filteredTVShows.Count > 0)
+            {
+                //get a random TV Show from filtered TV Shows.
+                int randomIndex = _random.Next(filteredTVShows.Count);
+                randomTVShow = filteredTVShows[randomIndex];
+                randomTVShow.PosterPath = $"https://image.tmdb.org/t/p/w500{randomTVShow.PosterPath}"; // Set the full poster path
+                return randomTVShow;
+            }
+
+            //no TV Show found
+            int retryPage = totalPages;
+
+            if (totalPages > 1)
+            {
+                //retry with the last page
+                retryPage = _random.Next(1, totalPages + 1);
+            }
+
+            string retryUrl = $"{baseUrl}&page={retryPage}";
+
+            var retryResponse = _http.GetFromJsonAsync<TVShowResponse>(retryUrl, _jsonOptions)
+                .GetAwaiter().GetResult() ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Could not find a random TV Show.");
+
+            var filteredRetryTVShows = retryResponse.Results.Where(m => !string.IsNullOrEmpty(m.PosterPath)).ToList();
+
+            if (filteredRetryTVShows.Count > 1)
+            {
+                int randomIndex = _random.Next(filteredRetryTVShows.Count);
+                randomTVShow = filteredRetryTVShows[randomIndex];
+                randomTVShow.PosterPath = $"https://image.tmdb.org/t/p/w500{randomTVShow.PosterPath}"; // Set the full poster path
+                return randomTVShow;
+            }
+
+            throw new HttpIOException(HttpRequestError.InvalidResponse, "Could not find a random TV show");
+
+        }
+
+        public Task<List<TVShow>> SearchTVShowsAsync(string query, int page = 1)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

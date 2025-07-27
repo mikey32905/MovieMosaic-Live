@@ -1,6 +1,7 @@
 ﻿@page "/showMosaic"
 
 @rendermode InteractiveServer
+@inject ITMDBService tmdbService
 
 <PageTitle>Show Mosaic</PageTitle>
 
@@ -13,14 +14,13 @@
 <div class="container-xxl game-container">
     <div class="gameBoard-container">
         <div class="poster-container">
-            <img src="/img/RaidersPoster.png" class="poster-img" />
+            <img src="@randomTVShow.PosterPath" class="poster-img" />
             <div class="poster-overlay row row-cols-3 g-0">
                 @foreach (var square in squareList)
                 {
                     <div class="col overlay-block @(square.Show ? "fade-out" : "")">
                     </div>
                 }
-
             </div>
         </div>
     </div>
@@ -39,6 +39,56 @@
                     <button class="btn btn-primary" type="submit">Guess</button>
                 </EditForm>
             </div>
+            <nav class="mt-3">
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-hint-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#nav-hint"
+                            type="button"
+                            role="tab"
+                            aria-selected="true">
+                        Hints
+                    </button>
+                    <button class="nav-link" id="nav-guess-tab"
+                            data-bs-toggle="tab"
+                            data-bs-target="#nav-guess"
+                            type="button"
+                            role="tab"
+                            aria-selected="false">
+                        Guesses
+                    </button>
+                </div>
+            </nav>
+            <div class="tab-content" id="nav-tabContent">
+                <div class="tab-pane border-0 fade show active" id="nav-hint"
+                     role="tabpanel" aria-label="nav-hint-tab" tabindex="0">
+                    <ul class="list-group mb-3" id="Hints">
+                        <li class="list-group-item">
+                            <i class="bi bi-1-square-fill me-1">Hint 1 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-2-square-fill me-1">Hint 2 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-3-square-fill me-1">Hint 3 Goes Here</i>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-pane border-0 fade" id="nav-guess"
+                     role="tabpanel" aria-label="nav-guess-tab" tabindex="0">
+                     <ul class="list-group mb-3" id="Guesses">
+                        <li class="list-group-item">
+                            <i class="bi bi-1-square-fill me-1">Guess 1 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-2-square-fill me-1">Guess 2 Goes Here</i>
+                        </li>
+                        <li class="list-group-item">
+                            <i class="bi bi-3-square-fill me-1">Guess 3 Goes Here</i>
+                        </li>
+                     </ul>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -50,14 +100,25 @@
     #region State Variables
 
     ShowFormModel showFormModel = new ShowFormModel();
+    private TVShow randomTVShow = new TVShow();
 
     private int squareCount = 12;
+    private int yearStart = 1970;
+    private int yearEnd = 2025;
+    private string selectedGenres = "";
 
     List<Square> squareList = new List<Square>();
 
     #endregion State Variables
 
     #region Game Flow
+
+    private async Task NewGame()
+    {
+        randomTVShow = new TVShow();
+        randomTVShow = await tmdbService.GetRandomTVShowAsync(yearStart, yearEnd, selectedGenres);
+
+    }
 
     private async Task ResetGameState()
     {
@@ -101,6 +162,14 @@
         await showRandomSquare();
     }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Initialize any JavaScript interop or other one-time setup here
+            await NewGame();
+        }
+    }
 
 
 
