@@ -206,9 +206,14 @@ namespace MovieMosaic_Live.Services
 
         }
 
-        public Task<List<TVShow>> SearchTVShowsAsync(string query, int page = 1)
+        public async Task<List<TVShow>> SearchTVShowsAsync(string query, int page = 1)
         {
-            throw new NotImplementedException();
+            var url = $"search/tv?query={query}&region=US&include_adult=false&language=en-US";
+
+            TVShowResponse response = _http.GetFromJsonAsync<TVShowResponse>(url, _jsonOptions)
+                .GetAwaiter().GetResult() ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Search results could not be loaded.");
+
+            return response.Results.Where(r => r.VoteCount > 150).ToList();
         }
     }
 }
