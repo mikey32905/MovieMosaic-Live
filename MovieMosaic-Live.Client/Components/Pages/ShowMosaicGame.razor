@@ -47,7 +47,6 @@
                                     @foreach(var tVShow in tVShows)
                                 {
                                     <li @onclick="() => SelectTVShow(tVShow)">@tVShow.Name </li>
-                                       
                                 }
                             </ul>
                             </div>
@@ -92,15 +91,27 @@
                 <div class="tab-pane border-0 fade" id="nav-guess"
                      role="tabpanel" aria-label="nav-guess-tab" tabindex="0">
                     <ul class="list-group mb-3" id="Guesses">
-                        <li class="list-group-item">
-                            <i class="bi bi-1-square-fill me-1">Guess 1 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-2-square-fill me-1">Guess 2 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-3-square-fill me-1">Guess 3 Goes Here</i>
-                        </li>
+                        @for (int i = 0; i < guesses.Count; i++)
+                        {
+                            var guess = guesses[i];
+
+                            if (guess.Correct)
+                            {
+                                <li class="list-group-item  list-group-item-success">
+                                    <i class="bi bi-@(i + 1)-square-fill me-1"></i>
+                                    <span>@guess.Title</span>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="list-group-item list-group-item-danger">
+                                    <i class="bi bi-@(i + 1)-square-fill me-1"></i>
+                                    <span>@guess.Title</span>
+                                </li>
+
+                            }
+                        }
+
                     </ul>
                 </div>
             </div>
@@ -124,6 +135,7 @@
 
     List<Square> squareList = new List<Square>();
     private List<TVShow> tVShows = new List<TVShow>();
+    private List<Guess> guesses = [];
 
     //timers
     private Timer? debounceTimer;
@@ -198,8 +210,12 @@
             await showRandomSquare();
             win = false;
         }
-        //shows a new random square
-        // await showRandomSquare();
+        
+        guesses.Add(new Guess
+        {
+            Title = showFormModel.ShowTitle,
+            Correct = win
+        });
     }
 
     #endregion Game Flow
