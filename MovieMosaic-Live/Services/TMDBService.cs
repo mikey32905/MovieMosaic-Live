@@ -139,7 +139,7 @@ namespace MovieMosaic_Live.Services
             string firstAirDateGte = "";
             string firstAirDateLte = "";
 
-            string baseUrl = "discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&sort_by=vote_count.desc&volt_count.gte=200";
+            string baseUrl = "discover/tv?include_adult=false&include_null_first_air_dates=false&language=en-US&with_origin_country=US&with_original_language=en&sort_by=vote_count.desc&volt_count.gte=200";
 
 
             TVShow randomTVShow = new TVShow();

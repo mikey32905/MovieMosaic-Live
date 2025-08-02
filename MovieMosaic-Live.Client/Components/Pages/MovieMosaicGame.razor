@@ -117,7 +117,7 @@
                 </div>
             </div>
             <div class="hstack gap-2 justify-content-end">
-                <button class="btn btn-info controls-btn">Play Again</button>
+                <button class="btn btn-info controls-btn" @onclick="PlayItAgain">Play Again</button>
                 <button class="btn controls-btn">
                     <i class="bi bi-question-circle text-secondary"></i>
                 </button>
@@ -129,6 +129,10 @@
     </div>
 
 </div>
+
+<WinLossOverlay IsVisible="@showOverlay" IsWin="@win"
+                 MovieTitle="@randomMovie.Title" Guesses="@guesses.Count"
+                OnClose="CloseOverlay" />
 
 @code {
 
@@ -153,17 +157,42 @@
 
     private int debounceDelay = 500; //milliseconds
 
+    //game state variables
+    private int maxGuesses = 5;
+    //  private int currentGuesses = 0;
+    private bool gameOver = false;
     private bool win = false;
+    private bool showOverlay = false;
 
     #endregion State Variables
 
     #region Game Flow
+
+    private async Task PlayItAgain()
+    {
+        //reset the game state
+        await ResetGameState();
+        //start a new game
+        await NewGame();
+
+        Task.Delay(2000).Wait(); //wait for a second to let the UI update
+
+        //show a random square
+        await showRandomSquare();
+    }
 
     private async Task NewGame()
     {
         randomMovie = new();
         win = false;
         randomMovie = await tmdbService.GetRandomMovieAsync(yearStart, yearEnd, selectedGenres);
+        //clear guesses
+        guesses.Clear();
+    }
+
+    private void CloseOverlay()
+    {
+        showOverlay = false;
     }
 
     private async Task ResetGameState()
@@ -190,6 +219,7 @@
             RevealPoster();
 
             win = true;
+            gameOver = true;
         }
         else
         {
@@ -197,14 +227,28 @@
             await showRandomSquare();
 
             win = false;
+            gameOver = false;
         }
-
+ 
         guesses.Add(new Guess
         {
             Title = formModel.MovieTitle,
             ReleaseYear = DateTime.TryParse(formModel.ReleaseDate, out var date) ? date.Year.ToString() : "Unknown",
             Correct = win
         });
+
+        //check if the max guesses have been reached
+        if (guesses.Count >= maxGuesses)
+        {
+            gameOver = true;
+            win = false;
+            RevealPoster();
+        }
+
+        if (gameOver)
+        {
+            showOverlay = true;
+        }
 
     }
 
@@ -243,11 +287,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender || randomMovie.Id == 0)
+        if (firstRender)
         {
-            await ResetGameState();
-            await NewGame();
-            await showRandomSquare();
+          await PlayItAgain();
             StateHasChanged();
         }
     }
