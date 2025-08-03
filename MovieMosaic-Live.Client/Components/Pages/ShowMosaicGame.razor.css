@@ -129,7 +129,7 @@
     margin: 0;
     padding: 0;
     max-height: 200px; /* Limit the height of the suggestions box */
-    z-index: 1000; /* Ensure it is above the poster and overlay */
+    z-index: 500; /* Ensure it is above the poster and overlay */
 }
 
     .suggestions li {

@@ -114,13 +114,27 @@
 
                     </ul>
                 </div>
+                <div class="hstack gap-2 justify-content-end">
+                    <button class="btn btn-info controls-btn" @onclick="PlayItAgain">Play Again</button>
+                    <button class="btn controls-btn">
+                        <i class="bi bi-question-circle text-secondary"></i>
+                    </button>
+                    <button class="btn controls-btn">
+                        <i class="bi bi-gear text-secondary"></i>
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
 
 </div>
 
-
+<WinLossTVOverlay IsWin="@win"
+                 IsVisible="@showOverlay"
+                 ShowTitle="@randomTVShow.Name"
+                 Guesses="@guesses.Count"
+                  OnClose="CloseOverlay" />
 
 @code {
     #region State Variables
@@ -143,12 +157,29 @@
 
     private int debounceDelay = 500; //milliseconds
 
-
+    //game state variables
+    private int maxGuesses = 5;
+    private bool gameOver = false;
     private bool win = false;
+    private bool showOverlay = false;
 
     #endregion State Variables
 
     #region Game Flow
+
+    private async Task PlayItAgain()
+    {
+        //reset the game state
+        await ResetGameState();
+        //start a new game
+        await NewGame();
+
+        Task.Delay(2000).Wait(); //wait for a second to let the UI update
+
+        //show a random square
+        await showRandomSquare();
+    }
+
 
     private async Task NewGame()
     {
@@ -183,6 +214,12 @@
         }
     }
 
+    private void CloseOverlay()
+    {
+        showOverlay = false;
+    }
+
+
     private void RevealPoster()
     {
         foreach (var square in squareList)
@@ -203,12 +240,14 @@
             RevealPoster();
 
             win = true;
+            gameOver = true;
         }
         else
         {
             //show a new random square
             await showRandomSquare();
             win = false;
+            gameOver = false;
         }
         
         guesses.Add(new Guess
@@ -216,6 +255,19 @@
             Title = showFormModel.ShowTitle,
             Correct = win
         });
+
+        //check if the max guesses have been reached
+        if (guesses.Count >= maxGuesses)
+        {
+            gameOver = true;
+            win = false;
+            RevealPoster();
+        }
+
+        if (gameOver)
+        {
+            showOverlay = true;
+        }
     }
 
     #endregion Game Flow
