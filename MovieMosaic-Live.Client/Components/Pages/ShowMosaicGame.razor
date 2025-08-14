@@ -171,13 +171,16 @@
     {
         //reset the game state
         await ResetGameState();
+
         //start a new game
         await NewGame();
 
         Task.Delay(2000).Wait(); //wait for a second to let the UI update
 
         //show a random square
-        await showRandomSquare();
+        showRandomSquare();
+
+        // StateHasChanged();
     }
 
 
@@ -186,7 +189,6 @@
         randomTVShow = new TVShow();
         win = false;
         randomTVShow = await tmdbService.GetRandomTVShowAsync(yearStart, yearEnd, selectedGenres);
-
     }
 
     private async Task ResetGameState()
@@ -196,11 +198,21 @@
         for (int i = 1; i <= squareCount; i++)
         {
             Square newSquare = new();
+            newSquare.Show = false;
             squareList.Add(newSquare);
         }
+
+        guesses = new();
+        win = false;
+        gameOver = false;
+        showOverlay = false;
+
+        //clear guess text input
+        showFormModel = new();
+
     }
 
-    private async Task showRandomSquare()
+    private void showRandomSquare()
     {
         Random random = new Random();
 
@@ -226,7 +238,6 @@
         {
             square.Show = true;
         }
-        ;
     }
 
 
@@ -245,7 +256,7 @@
         else
         {
             //show a new random square
-            await showRandomSquare();
+            showRandomSquare();
             win = false;
             gameOver = false;
         }
@@ -281,12 +292,9 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (firstRender || randomTVShow.Id == 0)
         {
-            await ResetGameState();
-            // Initialize any JavaScript interop or other one-time setup here
-            await NewGame();
-            await showRandomSquare();
+            await PlayItAgain();
             StateHasChanged();
         }
     }

@@ -79,16 +79,16 @@
                 <div class="tab-pane border-0 fade show active" id="nav-hint"
                      role="tabpanel" aria-label="nav-hint-tab" tabindex="0">
                     <ul class="list-group mb-3" id="Hints">
-                        <li class="list-group-item">
-                            <i class="bi bi-1-square-fill me-1">Hint 1 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-2-square-fill me-1">Hint 2 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-3-square-fill me-1">Hint 3 Goes Here</i>
-                        </li>
-                    </ul>
+                        @foreach(var hint in hints.OrderBy(h => h.Order))
+                        {
+                            if (guesses.Count + 1 >= hint.Order || hint.Show)
+                            {
+                                <li class="list-group-item">
+                                    <i class="bi bi-@hint.Order-square-fill me-1"></i>@hint.HintText
+                                </li>
+                            }
+                        }
+                     </ul>
                 </div>
                 <div class="tab-pane border-0 fade" id="nav-guess"
                      role="tabpanel" aria-label="nav-guess-tab" tabindex="0">
@@ -150,6 +150,7 @@
     List<Square> squareList = [];
     private List<Movie> movies = [];
     private List<Guess> guesses = [];
+    private List<Hints> hints = new();
 
     //timers
     private Timer? debounceTimer;
@@ -186,8 +187,8 @@
         randomMovie = new();
         win = false;
         randomMovie = await tmdbService.GetRandomMovieAsync(yearStart, yearEnd, selectedGenres);
-        //clear guesses
-        guesses.Clear();
+
+        await GetHints(randomMovie.Id);
     }
 
     private void CloseOverlay()
@@ -204,6 +205,13 @@
             Square newSquare = new();
             squareList.Add(newSquare);
         }
+
+        formModel = new();
+        guesses = new();
+        hints = new List<Hints>();
+        win = false;
+        gameOver = false;
+        showOverlay = false;
     }
 
     private async Task HandleSubmit()
@@ -218,6 +226,9 @@
             //Reveal the poster
             RevealPoster();
 
+            //show all the hints
+            showAllHints();
+
             win = true;
             gameOver = true;
         }
@@ -229,7 +240,7 @@
             win = false;
             gameOver = false;
         }
- 
+
         guesses.Add(new Guess
         {
             Title = formModel.MovieTitle,
@@ -266,6 +277,14 @@
         }
     }
 
+    private void showAllHints()
+    {
+        foreach (var hint in hints)
+        {
+            hint.Show = true;
+        }
+    }
+
     private void RevealPoster()
     {
         foreach(var square in squareList)
@@ -289,7 +308,7 @@
     {
         if (firstRender)
         {
-          await PlayItAgain();
+            await PlayItAgain();
             StateHasChanged();
         }
     }
@@ -369,5 +388,68 @@
     }
 
     #endregion Search Type Ahead
+
+    #region UI Helpers
+
+    public async Task GetHints(int movieId)
+    {
+        var movieDetails = await tmdbService.GetMovieDetailsAsync(movieId);
+
+        if (movieDetails is not null)
+        {
+            var releaseYear = DateTime.TryParse(movieDetails.ReleaseDate, out var date) ? date.Year.ToString() : "";
+            string genreName = movieDetails.Genres?.FirstOrDefault()?.Name ?? "Unknown";
+            string tagline = movieDetails.Tagline ?? "";
+            string leadActor = movieDetails.Credits?.Cast?.FirstOrDefault()?.Name ?? "Unknown";
+            string director = movieDetails.Credits?.Crew?.FirstOrDefault(c => c.Job == "Director")?.Name ?? "Unknown";
+            string overview = movieDetails.Overview ?? "No Overview Available";
+            
+            //build hint1
+            string taglineHint = string.IsNullOrEmpty(tagline) 
+                                 ? "No tagline for this movie - the mystery deepens"
+                                 : $"Here's the movie tagline: \"{tagline}\"";
+            string actorHint = string.IsNullOrEmpty(leadActor) 
+                               ? "The lead actor's is a bit of a mystery.. fitting right?"
+                                 : $"{leadActor} takes the spotlight in this one";
+            string directorHint = string.IsNullOrEmpty(director)
+                                ? "Directed by... Well, that part's classified."
+                                : $"{director} is the mastermind behind this one";
+
+            string genreHint = string.IsNullOrEmpty(genreName)
+                                ? "Genre? It's a mystery wrapped in an enigma."
+                                : $"This {genreName.ToLower()} flick dropped in {releaseYear}.";
+
+
+            string overviewHint = string.IsNullOrEmpty(overview)
+                ? "Overview? More like over-guessing!"
+                : $"Here's a sneak peek: \"{overview}\"";
+
+            hints = new List<Hints>
+            {
+                BuildHint(taglineHint, 1),
+                BuildHint(actorHint, 2),
+                BuildHint(directorHint, 3),
+                BuildHint(genreHint, 4),
+                BuildHint(overviewHint, 5)
+            };
+
+        }
+
+
+    }
+
+    public Hints BuildHint(string hintText, int order)
+    {
+        // This method can be used to return hints for the movie
+        // For now, it returns a placeholder object
+        return new Hints
+        {
+            HintText = hintText,
+            Show = false,
+            Order = order
+        };
+    }
+
+    #endregion Ui Helpers
 
 }

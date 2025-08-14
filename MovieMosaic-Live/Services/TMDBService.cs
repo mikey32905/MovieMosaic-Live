@@ -133,6 +133,16 @@ namespace MovieMosaic_Live.Services
             return response.Results.Where(r => r.VoteCount > 150).ToList();
         }
 
+        public async Task<MovieDetails> GetMovieDetailsAsync(int movieId)
+        {
+            var url = $"movie/{movieId}?append_to_response=credits,videos&language=en-US";
+
+            MovieDetails? response = await _http.GetFromJsonAsync<MovieDetails>(url, _jsonOptions)
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Movie details could not be loaded.");
+
+            return response;
+        }
+
         public async Task<TVShow> GetRandomTVShowAsync(int? yearStart, int? yearEnd, string? Genres)
         {
             //get a TV Show based on the specific year range and genres.
