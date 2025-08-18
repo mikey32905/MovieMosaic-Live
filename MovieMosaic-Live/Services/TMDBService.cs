@@ -225,5 +225,14 @@ namespace MovieMosaic_Live.Services
 
             return response.Results.Where(r => r.VoteCount > 150).ToList();
         }
+
+        public async Task<TVShowDetails> GetTVShowDetailsAsync(int tvShowId)
+        {
+            var url = $"tv/{tvShowId}?append_to_response=credits,videos&language=en-US";
+            TVShowDetails? response = await _http.GetFromJsonAsync<TVShowDetails>(url, _jsonOptions)
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "TV Show details could not be loaded.");
+            return response;
+        }
+
     }
 }

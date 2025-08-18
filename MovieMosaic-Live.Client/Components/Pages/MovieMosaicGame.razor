@@ -150,7 +150,7 @@
     List<Square> squareList = [];
     private List<Movie> movies = [];
     private List<Guess> guesses = [];
-    private List<Hints> hints = new();
+    private List<Hint> hints = new();
 
     //timers
     private Timer? debounceTimer;
@@ -208,7 +208,7 @@
 
         formModel = new();
         guesses = new();
-        hints = new List<Hints>();
+        hints = new List<Hint>();
         win = false;
         gameOver = false;
         showOverlay = false;
@@ -424,7 +424,7 @@
                 ? "Overview? More like over-guessing!"
                 : $"Here's a sneak peek: \"{overview}\"";
 
-            hints = new List<Hints>
+            hints = new List<Hint>
             {
                 BuildHint(taglineHint, 1),
                 BuildHint(actorHint, 2),
@@ -438,11 +438,11 @@
 
     }
 
-    public Hints BuildHint(string hintText, int order)
+    public Hint BuildHint(string hintText, int order)
     {
         // This method can be used to return hints for the movie
         // For now, it returns a placeholder object
-        return new Hints
+        return new Hint
         {
             HintText = hintText,
             Show = false,

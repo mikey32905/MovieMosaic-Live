@@ -35,22 +35,22 @@
                                    autocomplete="off"
                                    autocorrect="off"
                                    spellcheck="false"
-                                   @oninput="OnInputChanged"/>
+                                   @oninput="OnInputChanged" />
                         <button class="btn btn-primary" type="submit">Guess</button>
                     </div>
                     <ValidationMessage For="() => showFormModel.ShowTitle" />
-                        <!--Show the type ahead results-->
-                        @if (tVShows?.Any() == true)
-                        {
-                            <div class="suggestions-wrapper">
-                                <ul class="suggestions">
-                                    @foreach(var tVShow in tVShows)
+                    <!--Show the type ahead results-->
+                    @if (tVShows?.Any() == true)
+                    {
+                        <div class="suggestions-wrapper">
+                            <ul class="suggestions">
+                                @foreach (var tVShow in tVShows)
                                 {
                                     <li @onclick="() => SelectTVShow(tVShow)">@tVShow.Name </li>
                                 }
                             </ul>
-                            </div>
-                        }
+                        </div>
+                    }
                 </EditForm>
             </div>
             <nav class="mt-3">
@@ -77,15 +77,15 @@
                 <div class="tab-pane border-0 fade show active" id="nav-hint"
                      role="tabpanel" aria-label="nav-hint-tab" tabindex="0">
                     <ul class="list-group mb-3" id="Hints">
-                        <li class="list-group-item">
-                            <i class="bi bi-1-square-fill me-1">Hint 1 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-2-square-fill me-1">Hint 2 Goes Here</i>
-                        </li>
-                        <li class="list-group-item">
-                            <i class="bi bi-3-square-fill me-1">Hint 3 Goes Here</i>
-                        </li>
+                        @foreach (var hint in hints.OrderBy(h => h.Order))
+                        {
+                            if (guesses.Count + 1 >= hint.Order || hint.Show)
+                            {
+                                <li class="list-group-item">
+                                    <i class="bi bi-@hint.Order-square-fill me-1"></i>@hint.HintText
+                                </li>
+                            }
+                        }
                     </ul>
                 </div>
                 <div class="tab-pane border-0 fade" id="nav-guess"
@@ -131,9 +131,9 @@
 </div>
 
 <WinLossTVOverlay IsWin="@win"
-                 IsVisible="@showOverlay"
-                 ShowTitle="@randomTVShow.Name"
-                 Guesses="@guesses.Count"
+                  IsVisible="@showOverlay"
+                  ShowTitle="@randomTVShow.Name"
+                  Guesses="@guesses.Count"
                   OnClose="CloseOverlay" />
 
 @code {
@@ -150,6 +150,8 @@
     List<Square> squareList = new List<Square>();
     private List<TVShow> tVShows = new List<TVShow>();
     private List<Guess> guesses = [];
+    private List<Hint> hints = new();
+
 
     //timers
     private Timer? debounceTimer;
@@ -189,6 +191,9 @@
         randomTVShow = new TVShow();
         win = false;
         randomTVShow = await tmdbService.GetRandomTVShowAsync(yearStart, yearEnd, selectedGenres);
+
+        await GetShowHints(randomTVShow.Id);
+
     }
 
     private async Task ResetGameState()
@@ -203,6 +208,7 @@
         }
 
         guesses = new();
+        hints = new();
         win = false;
         gameOver = false;
         showOverlay = false;
@@ -231,6 +237,13 @@
         showOverlay = false;
     }
 
+    private void showAllHints()
+    {
+        foreach (var hint in hints)
+        {
+            hint.Show = true;
+        }
+    }
 
     private void RevealPoster()
     {
@@ -250,6 +263,9 @@
             //show movie poster
             RevealPoster();
 
+            //show all hints
+            showAllHints();
+
             win = true;
             gameOver = true;
         }
@@ -260,7 +276,7 @@
             win = false;
             gameOver = false;
         }
-        
+
         guesses.Add(new Guess
         {
             Title = showFormModel.ShowTitle,
@@ -343,7 +359,7 @@
 
              await InvokeAsync(async () =>
          {
-             await SearchTVShows(); 
+             await SearchTVShows();
              ResetInactivityTimer();
          });
          }, null, debounceDelay, Timeout.Infinite);
@@ -378,5 +394,65 @@
 
     #endregion Search Type Ahead
 
+    #region UI Helpers
+
+    public async Task GetShowHints(int showId)
+    {
+        var tvShowDetails = await tmdbService.GetTVShowDetailsAsync(showId);
+
+        if (tvShowDetails is not null)
+        {
+            var firstAirDateYear = DateTime.TryParse(tvShowDetails.FirstAirDate, out var date) ? date.Year.ToString() : "";
+            string genreName = tvShowDetails.Genres?.FirstOrDefault()?.Name ?? "";
+            string tagline = tvShowDetails.Tagline ?? "";
+            string leadActor = tvShowDetails.Credits?.Cast?.FirstOrDefault()?.Name ?? "Unknown";
+            string director = tvShowDetails.Credits?.Crew?.FirstOrDefault(c => c.Job == "Director")?.Name ?? "Unknown";
+            string overview = tvShowDetails.Overview ?? "No Overview Available";
+
+            //build the hints
+            string taglineHint = string.IsNullOrEmpty(tagline)
+                                 ? "No tagline available - The plot thickens..."
+                                 : $"Here's the show tagline: {tagline}";
+
+            string actorHint = string.IsNullOrEmpty(leadActor)
+                               ? "The lead actor's is a bit of a mystery.. fitting right?"
+                                 : $"{leadActor} takes the spotlight in this one";
+            string directorHint = string.IsNullOrEmpty(director)
+                                ? "Directed by... Well, that part's classified."
+                                : $"{director} is the mastermind behind this one";
+
+            string genreHint = string.IsNullOrEmpty(genreName)
+                                ? "Genre? It's a mystery wrapped in an enigma."
+                                : $"This {genreName.ToLower()} series dropped in {firstAirDateYear}.";
+
+
+            string overviewHint = string.IsNullOrEmpty(overview)
+                ? "Overview? More like over-guessing!"
+                : $"Here's a sneak peek: \"{overview}\"";
+
+            hints = new List<Hint>
+            {
+                BuildHint(taglineHint, 1),
+                BuildHint(actorHint, 2),
+                BuildHint(directorHint, 3),
+                BuildHint(genreHint, 4),
+                BuildHint(overviewHint, 5)
+            };
+        }
+    }
+
+    public Hint BuildHint(string hintText, int order)
+    {
+        // This method can be used to return hints for the movie
+        // For now, it returns a placeholder object
+        return new Hint
+        {
+            HintText = hintText,
+            Show = false,
+            Order = order
+        };
+    }
+
+    #endregion  UI Helpers
 
 }
