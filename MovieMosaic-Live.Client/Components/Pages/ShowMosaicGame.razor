@@ -308,7 +308,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender || randomTVShow.Id == 0)
+        if (firstRender)
         {
             await PlayItAgain();
             StateHasChanged();
@@ -406,7 +406,10 @@
             string genreName = tvShowDetails.Genres?.FirstOrDefault()?.Name ?? "";
             string tagline = tvShowDetails.Tagline ?? "";
             string leadActor = tvShowDetails.Credits?.Cast?.FirstOrDefault()?.Name ?? "Unknown";
-            string director = tvShowDetails.Credits?.Crew?.FirstOrDefault(c => c.Job == "Director")?.Name ?? "Unknown";
+
+            //Change director to network
+            string tvShowNetwork = tvShowDetails.Networks?.FirstOrDefault()?.Name ?? "Unknown";
+            // string director = tvShowDetails.Credits?.Crew?.FirstOrDefault(c => c.Job == "Director")?.Name ?? "Unknown";
             string overview = tvShowDetails.Overview ?? "No Overview Available";
 
             //build the hints
@@ -417,9 +420,13 @@
             string actorHint = string.IsNullOrEmpty(leadActor)
                                ? "The lead actor's is a bit of a mystery.. fitting right?"
                                  : $"{leadActor} takes the spotlight in this one";
-            string directorHint = string.IsNullOrEmpty(director)
-                                ? "Directed by... Well, that part's classified."
-                                : $"{director} is the mastermind behind this one";
+            // string directorHint = string.IsNullOrEmpty(director)
+            //                     ? "Directed by... Well, that part's classified."
+            //                     : $"{director} is the mastermind behind this one";
+
+            string networkHint = string.IsNullOrEmpty(tvShowNetwork)
+                                ? "The network showing this series is still a mystery."
+                                : $"{tvShowNetwork} is the network that aired this series."; 
 
             string genreHint = string.IsNullOrEmpty(genreName)
                                 ? "Genre? It's a mystery wrapped in an enigma."
@@ -434,7 +441,7 @@
             {
                 BuildHint(taglineHint, 1),
                 BuildHint(actorHint, 2),
-                BuildHint(directorHint, 3),
+                BuildHint(networkHint, 3),
                 BuildHint(genreHint, 4),
                 BuildHint(overviewHint, 5)
             };
