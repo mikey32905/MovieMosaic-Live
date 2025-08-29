@@ -118,7 +118,7 @@
             </div>
             <div class="hstack gap-2 justify-content-end">
                 <button class="btn btn-info controls-btn" @onclick="PlayItAgain">Play Again</button>
-                <button class="btn controls-btn">
+                <button class="btn controls-btn" data-bs-toggle="modal" data-bs-target="#instructionsModal">
                     <i class="bi bi-question-circle text-secondary"></i>
                 </button>
                 <button class="btn controls-btn">
@@ -133,6 +133,8 @@
 <WinLossOverlay IsVisible="@showOverlay" IsWin="@win"
                  MovieTitle="@randomMovie.Title" Guesses="@guesses.Count"
                 OnClose="CloseOverlay" />
+
+<InstructionsModal />
 
 @code {
 
@@ -208,7 +210,7 @@
 
         formModel = new();
         guesses = new();
-        hints = new List<Hint>();
+        hints = new();
         win = false;
         gameOver = false;
         showOverlay = false;

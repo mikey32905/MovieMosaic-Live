@@ -116,7 +116,7 @@
                 </div>
                 <div class="hstack gap-2 justify-content-end">
                     <button class="btn btn-info controls-btn" @onclick="PlayItAgain">Play Again</button>
-                    <button class="btn controls-btn">
+                    <button class="btn controls-btn" data-bs-toggle="modal" data-bs-target="#showInstructionsModal">
                         <i class="bi bi-question-circle text-secondary"></i>
                     </button>
                     <button class="btn controls-btn">
@@ -135,6 +135,8 @@
                   ShowTitle="@randomTVShow.Name"
                   Guesses="@guesses.Count"
                   OnClose="CloseOverlay" />
+
+<ShowsInstructionsModal />
 
 @code {
     #region State Variables
@@ -172,12 +174,14 @@
     private async Task PlayItAgain()
     {
         //reset the game state
-        await ResetGameState();
+       ResetGameState();
+
+        Task.Delay(1000).Wait(); //wait for a second to let the UI update
 
         //start a new game
         await NewGame();
 
-        Task.Delay(2000).Wait(); //wait for a second to let the UI update
+        Task.Delay(1000).Wait(); //wait for a second to let the UI update
 
         //show a random square
         showRandomSquare();
@@ -188,7 +192,6 @@
 
     private async Task NewGame()
     {
-        randomTVShow = new TVShow();
         win = false;
         randomTVShow = await tmdbService.GetRandomTVShowAsync(yearStart, yearEnd, selectedGenres);
 
@@ -196,7 +199,7 @@
 
     }
 
-    private async Task ResetGameState()
+    private void ResetGameState()
     {
         squareList = new();
 
@@ -207,15 +210,15 @@
             squareList.Add(newSquare);
         }
 
+        // randomTVShow = new TVShow();
+        // randomTVShow.PosterPath = "/img/mwMovieMosaicWaiting.png"; //reset poster path to placeholder
+         //clear guess text input
+        showFormModel = new();
         guesses = new();
         hints = new();
         win = false;
         gameOver = false;
         showOverlay = false;
-
-        //clear guess text input
-        showFormModel = new();
-
     }
 
     private void showRandomSquare()

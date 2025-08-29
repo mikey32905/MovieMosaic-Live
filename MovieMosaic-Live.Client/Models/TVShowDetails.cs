@@ -38,21 +38,6 @@
         public Videos Videos { get; set; }
     }
 
-    //public class Cast
-    //{
-    //    public bool? Adult { get; set; }
-    //    public int? Gender { get; set; }
-    //    public int? Id { get; set; }
-    //    public string KnownForDepartment { get; set; }
-    //    public string Name { get; set; }
-    //    public string OriginalName { get; set; }
-    //    public double? Popularity { get; set; }
-    //    public string ProfilePath { get; set; }
-    //    public string Character { get; set; }
-    //    public string CreditId { get; set; }
-    //    public int? Order { get; set; }
-    //}
-
     public class CreatedBy
     {
         public int? Id { get; set; }
@@ -62,33 +47,6 @@
         public int? Gender { get; set; }
         public string ProfilePath { get; set; }
     }
-
-    //public class Credits
-    //{
-    //    public List<Cast> Cast { get; set; }
-    //    public List<Crew> Crew { get; set; }
-    //}
-
-    //public class Crew
-    //{
-    //    public bool? Adult { get; set; }
-    //    public int? Gender { get; set; }
-    //    public int? Id { get; set; }
-    //    public string KnownForDepartment { get; set; }
-    //    public string Name { get; set; }
-    //    public string OriginalName { get; set; }
-    //    public double? Popularity { get; set; }
-    //    public string ProfilePath { get; set; }
-    //    public string CreditId { get; set; }
-    //    public string Department { get; set; }
-    //    public string Job { get; set; }
-    //}
-
-    //public class Genre
-    //{
-    //    public int? Id { get; set; }
-    //    public string Name { get; set; }
-    //}
 
     public class LastEpisodeToAir
     {
@@ -132,35 +90,6 @@
         public object StillPath { get; set; }
     }
 
-    //public class ProductionCompany
-    //{
-    //    public int? Id { get; set; }
-    //    public string LogoPath { get; set; }
-    //    public string Name { get; set; }
-    //    public string OriginCountry { get; set; }
-    //}
-
-    //public class ProductionCountry
-    //{
-    //    public string Iso31661 { get; set; }
-    //    public string Name { get; set; }
-    //}
-
-    //public class Result
-    //{
-    //    public string Iso6391 { get; set; }
-    //    public string Iso31661 { get; set; }
-    //    public string Name { get; set; }
-    //    public string Key { get; set; }
-    //    public string Site { get; set; }
-    //    public int? Size { get; set; }
-    //    public string Type { get; set; }
-    //    public bool? Official { get; set; }
-    //    public DateTime? PublishedAt { get; set; }
-    //    public string Id { get; set; }
-    //}
-
-
     public class Season
     {
         public string AirDate { get; set; }
@@ -172,19 +101,6 @@
         public int? SeasonNumber { get; set; }
         public double? VoteAverage { get; set; }
     }
-
-    //public class SpokenLanguage
-    //{
-    //    public string EnglishName { get; set; }
-    //    public string Iso6391 { get; set; }
-    //    public string Name { get; set; }
-    //}
-
-    //public class Videos
-    //{
-    //    public List<Result> Results { get; set; }
-    //}
-
 
 
 }
