@@ -69,6 +69,12 @@
         public string Job { get; set; }
     }
 
+
+    public class GenreResponse
+    {
+        public List<Genre>? Genres { get; set; }
+    }
+
     public class Genre
     {
         public int? Id { get; set; }

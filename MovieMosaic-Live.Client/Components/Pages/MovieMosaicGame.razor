@@ -121,7 +121,7 @@
                 <button class="btn controls-btn" data-bs-toggle="modal" data-bs-target="#instructionsModal">
                     <i class="bi bi-question-circle text-secondary"></i>
                 </button>
-                <button class="btn controls-btn">
+                <button class="btn controls-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSettings" aria-controls="offcanvasRight">
                     <i class="bi bi-gear text-secondary"></i>
                 </button>
             </div>
@@ -135,6 +135,8 @@
                 OnClose="CloseOverlay" />
 
 <InstructionsModal />
+
+<GameSettings Genres="genres" OnSubmit="ApplyGameSettings"/>
 
 @code {
 
@@ -153,6 +155,7 @@
     private List<Movie> movies = [];
     private List<Guess> guesses = [];
     private List<Hint> hints = new();
+    private List<Genre> genres = [];
 
     //timers
     private Timer? debounceTimer;
@@ -214,6 +217,24 @@
         win = false;
         gameOver = false;
         showOverlay = false;
+    }
+
+    private async Task ApplyGameSettings(MovieMosaicGameSettings gameSettings)
+    {
+        yearStart = gameSettings.YearStart;
+        yearEnd = gameSettings.YearEnd;
+
+        if (gameSettings.SelectedGenre == 0)
+        {
+            selectedGenres = "";
+        }
+        else
+        {
+            selectedGenres = gameSettings.SelectedGenre.ToString();
+        }
+
+        //Reset Game
+        await PlayItAgain();
     }
 
     private async Task HandleSubmit()
@@ -301,6 +322,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        // Initialize the game state
+        genres = await tmdbService.GetMovieGenresAsync();
         // await ResetGameState();
 
         // await showRandomSquare();

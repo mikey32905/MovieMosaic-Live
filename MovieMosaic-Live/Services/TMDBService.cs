@@ -143,6 +143,14 @@ namespace MovieMosaic_Live.Services
             return response;
         }
 
+        public async Task<List<Genre>> GetMovieGenresAsync()
+        {
+            var url = "genre/movie/list?language=en-US";
+            GenreResponse? response = await _http.GetFromJsonAsync<GenreResponse>(url, _jsonOptions)
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Movie genres could not be loaded.");
+            return response?.Genres ?? new List<Genre>();
+        }
+
         public async Task<TVShow> GetRandomTVShowAsync(int? yearStart, int? yearEnd, string? Genres)
         {
             //get a TV Show based on the specific year range and genres.
@@ -232,6 +240,14 @@ namespace MovieMosaic_Live.Services
             TVShowDetails? response = await _http.GetFromJsonAsync<TVShowDetails>(url, _jsonOptions)
                 ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "TV Show details could not be loaded.");
             return response;
+        }
+
+        public async Task<List<Genre>> GetTvShowGenresAsync()
+        {
+            var url = "genre/tv/list?language=en-US";
+            GenreResponse? response = await _http.GetFromJsonAsync<GenreResponse>(url, _jsonOptions)
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Movie genres could not be loaded.");
+            return response?.Genres ?? new List<Genre>();
         }
 
     }
