@@ -1,7 +1,10 @@
 ﻿@page "/movieMosaic"
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+
 @inject ITMDBService tmdbService
+@inject IGameSettingsService gameSettingsService
 
 <PageTitle>Movie Mosaic</PageTitle>
 
@@ -136,13 +139,15 @@
 
 <InstructionsModal />
 
-<GameSettings Genres="genres" OnSubmit="ApplyGameSettings"/>
+<GameSettings Genres="genres" MovieGameSettings="movieMosaicGameSettings" OnSubmit="ApplyGameSettings"/>
 
 @code {
 
     #region State Variables
 
-    FormModel formModel = new FormModel();
+    FormModel formModel = new();
+
+    private MovieMosaicGameSettings movieMosaicGameSettings = new MovieMosaicGameSettings();
 
     private Movie randomMovie = new Movie();
 
@@ -324,17 +329,17 @@
     {
         // Initialize the game state
         genres = await tmdbService.GetMovieGenresAsync();
-        // await ResetGameState();
 
-        // await showRandomSquare();
+        movieMosaicGameSettings = await gameSettingsService.GetMovieMosaicGameSettings();
+        await ApplyGameSettings(movieMosaicGameSettings);        
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await PlayItAgain();
-            StateHasChanged();
+            // await PlayItAgain();
+            // StateHasChanged();
         }
     }
 

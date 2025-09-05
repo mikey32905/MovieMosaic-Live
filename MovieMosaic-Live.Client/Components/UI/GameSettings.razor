@@ -8,32 +8,32 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <EditForm Model="formModel" OnValidSubmit="HandleSubmit">
+        <EditForm Model="MovieGameSettings" OnValidSubmit="HandleSubmit">
             <DataAnnotationsValidator />
             <ValidationSummary />
             <div class="mb-3">
                 <label for="YearStart" class="form-label">Starting Year</label>
-                <InputSelect class="form-select" @bind-Value="formModel.YearStart" >
+                <InputSelect class="form-select" @bind-Value="MovieGameSettings.YearStart">
                     @foreach (var decade in Decades)
                     {
                         <option value="@decade">@decade</option>
                     }
                 </InputSelect>
-                <ValidationMessage For="@(() => formModel.YearStart)" />
+                <ValidationMessage For="@(() => MovieGameSettings.YearStart)" />
             </div>
             <div class="mb-3">
                 <label for="YearEnd" class="form-label">Ending Year</label>
-                <InputSelect class="form-select" @bind-Value="formModel.YearEnd" >
+                <InputSelect class="form-select" @bind-Value="MovieGameSettings.YearEnd">
                     @foreach (var decade in Decades)
                     {
                         <option value="@decade">@decade</option>
                     }
                 </InputSelect>
-                <ValidationMessage For="@(() => formModel.YearEnd)" />
+                <ValidationMessage For="@(() => MovieGameSettings.YearEnd)" />
             </div>
             <div class="mb-3">
                 <label for="genreSelect" class="form-label">Select Genre</label>
-                <InputSelect class="form-select" @bind-Value="formModel.SelectedGenre">
+                <InputSelect class="form-select" @bind-Value="MovieGameSettings.SelectedGenre">
                     <option selected value="0">All Genres</option>
                     @foreach (var genre in Genres)
                     {
@@ -51,7 +51,10 @@
 </div>
 
 @code {
-    private MovieMosaicGameSettings formModel = new MovieMosaicGameSettings();
+
+    [Parameter, EditorRequired]
+    public MovieMosaicGameSettings MovieGameSettings { get; set; }
+
 
     [Parameter]
     public EventCallback<MovieMosaicGameSettings> OnSubmit { get; set; }
@@ -88,7 +91,7 @@
         // Handle form submission logic here
         // For example, you can call a service to save the settings
         //await Task.CompletedTask; // Placeholder for async operation
-        await OnSubmit.InvokeAsync(formModel);
+        await OnSubmit.InvokeAsync(MovieGameSettings);
 
         await JSRuntime.InvokeVoidAsync("eval", "bootstrap.Offcanvas.getInstance(document.getElementById('offcanvasSettings'))?.hide()");
     }

@@ -1,7 +1,9 @@
 ﻿@page "/showMosaic"
 
-@rendermode InteractiveServer
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
 @inject ITMDBService tmdbService
+@inject IGameSettingsService gameSettingsService
 
 <PageTitle>Show Mosaic</PageTitle>
 
@@ -138,7 +140,7 @@
 
 <ShowsInstructionsModal />
 
-<ShowGameSettings Genres="genres" OnSubmit="ApplyGameSettings" />
+<ShowGameSettings Genres="genres" ShowsGameSettings="showGameSettings" OnSubmit="ApplyGameSettings" />
 
 @code {
     #region State Variables
@@ -156,6 +158,8 @@
     private List<Guess> guesses = [];
     private List<Hint> hints = new();
     private List<Genre> genres = [];
+
+    private ShowMosaicGameSettings showGameSettings = new ShowMosaicGameSettings();
 
 
     //timers
@@ -179,12 +183,10 @@
         //reset the game state
         ResetGameState();
 
-        Task.Delay(1000).Wait(); //wait for a second to let the UI update
-
         //start a new game
         await NewGame();
 
-        Task.Delay(1000).Wait(); //wait for a second to let the UI update
+        Task.Delay(2000).Wait(); //wait for a second to let the UI update
 
         //show a random square
         showRandomSquare();
@@ -329,14 +331,16 @@
         // Initialize the game state
         genres = await tmdbService.GetTvShowGenresAsync();
 
+        showGameSettings = await gameSettingsService.GetShowMosaicGameSettings();
+        await ApplyGameSettings(showGameSettings);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await PlayItAgain();
-            StateHasChanged();
+            // await PlayItAgain();
+            // StateHasChanged();
         }
     }
 
