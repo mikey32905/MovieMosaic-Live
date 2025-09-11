@@ -1,5 +1,4 @@
 ﻿using Microsoft.JSInterop;
-using MovieMosaic_Live.Client.Components.UI;
 using MovieMosaic_Live.Client.Models;
 using System.Text.Json;
 
@@ -27,7 +26,7 @@ namespace MovieMosaic_Live.Client.Services
             return gameSettings;
         }
 
-        public async Task SaveMovieMosaicGameSettingsAsync(GameSettings gameSettings)
+        public async Task SaveMovieMosaicGameSettingsAsync(MovieMosaicGameSettings gameSettings)
         {
             try
             {
@@ -57,7 +56,7 @@ namespace MovieMosaic_Live.Client.Services
             return gameSettings;
         }
 
-        public async Task SaveShowMosaicGameSettingsAsync(GameSettings gameSettings)
+        public async Task SaveShowMosaicGameSettingsAsync(ShowMosaicGameSettings gameSettings)
         {
             try
             {

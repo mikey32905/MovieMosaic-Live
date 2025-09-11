@@ -213,6 +213,7 @@
         for (int i = 1; i <= squareCount; i++)
         {
             Square newSquare = new();
+            newSquare.Show = false;
             squareList.Add(newSquare);
         }
 
@@ -237,6 +238,8 @@
         {
             selectedGenres = gameSettings.SelectedGenre.ToString();
         }
+
+        await gameSettingsService.SaveMovieMosaicGameSettingsAsync(gameSettings);
 
         //Reset Game
         await PlayItAgain();

@@ -32,7 +32,7 @@
                 <EditForm Model="showFormModel" OnValidSubmit="HandleSubmit">
                     <DataAnnotationsValidator />
                     <div class="hstack gap-3">
-                        <InputText class="form-control" placeholder="Enter a movie title"
+                        <InputText class="form-control" placeholder="Enter a TV show title"
                                    @bind-value="showFormModel.ShowTitle"
                                    autocomplete="off"
                                    autocorrect="off"
@@ -181,7 +181,7 @@
     private async Task PlayItAgain()
     {
         //reset the game state
-        ResetGameState();
+        await ResetGameState();
 
         //start a new game
         await NewGame();
@@ -197,6 +197,7 @@
 
     private async Task NewGame()
     {
+        randomTVShow = new TVShow();
         win = false;
         randomTVShow = await tmdbService.GetRandomTVShowAsync(yearStart, yearEnd, selectedGenres);
 
@@ -204,7 +205,7 @@
 
     }
 
-    private void ResetGameState()
+    private async Task ResetGameState()
     {
         squareList = new();
 
@@ -215,8 +216,6 @@
             squareList.Add(newSquare);
         }
 
-        // randomTVShow = new TVShow();
-        // randomTVShow.PosterPath = "/img/mwMovieMosaicWaiting.png"; //reset poster path to placeholder
         //clear guess text input
         showFormModel = new();
         guesses = new();
@@ -239,6 +238,9 @@
         {
             selectedGenres = gameSettings.SelectedGenre.ToString();
         }
+
+        await gameSettingsService.SaveShowMosaicGameSettingsAsync(gameSettings);
+
 
         //Reset Game
         await PlayItAgain();
