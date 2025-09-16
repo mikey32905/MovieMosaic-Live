@@ -12,6 +12,8 @@ namespace MovieMosaic_Live.Client.Services
 
         Task<List<Genre>> GetMovieGenresAsync();
 
+        Task<Video?> GetMovieTrailerAsync(int movieId);
+
         Task<TVShow> GetRandomTVShowAsync(int? yearStart, int? yearEnd, string? Genres);
 
         Task<List<TVShow>> SearchTVShowsAsync(string query, int page = 1);

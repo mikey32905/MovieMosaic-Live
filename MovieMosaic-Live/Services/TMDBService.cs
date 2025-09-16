@@ -151,6 +151,19 @@ namespace MovieMosaic_Live.Services
             return response?.Genres ?? new List<Genre>();
         }
 
+        public async Task<Video?> GetMovieTrailerAsync(int movieId)
+        {
+            var url = $"movie/{movieId}/videos?language=en-US";
+
+            var videos = await _http.GetFromJsonAsync<MovieVideoResponse>(url, _jsonOptions)
+                ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Videos could not be loaded.");
+
+            return videos.Results.FirstOrDefault(v => v.Site!.Contains("YouTube", StringComparison.Ordinal) &&
+                                 v.Type!.Contains("Trailer", StringComparison.OrdinalIgnoreCase));
+
+        }
+
+
         public async Task<TVShow> GetRandomTVShowAsync(int? yearStart, int? yearEnd, string? Genres)
         {
             //get a TV Show based on the specific year range and genres.
@@ -249,6 +262,7 @@ namespace MovieMosaic_Live.Services
                 ?? throw new HttpIOException(HttpRequestError.InvalidResponse, "Movie genres could not be loaded.");
             return response?.Genres ?? new List<Genre>();
         }
+
 
     }
 }

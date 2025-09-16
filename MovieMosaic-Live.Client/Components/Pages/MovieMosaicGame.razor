@@ -134,8 +134,9 @@
 </div>
 
 <WinLossOverlay IsVisible="@showOverlay" IsWin="@win"
-                 MovieTitle="@randomMovie.Title" Guesses="@guesses.Count"
-                OnClose="CloseOverlay" />
+                Guesses="@guesses.Count"
+                OnClose="CloseOverlay"
+                movie="@randomMovie"/>
 
 <InstructionsModal />
 
@@ -153,7 +154,7 @@
 
     private int squareCount = 12;
     private int yearStart = 1970;
-    private int yearEnd = 2025;
+    private int yearEnd = 2030;
     private string selectedGenres = "";
 
     List<Square> squareList = [];
