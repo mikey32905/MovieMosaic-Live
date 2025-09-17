@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36202.13
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11012.119 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMosaic-Live", "MovieMosaic-Live\MovieMosaic-Live.csproj", "{16413CB5-1144-4C7D-AE6F-49AB4D981725}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMosaic-Live.Client", "MovieMosaic-Live.Client\MovieMosaic-Live.Client.csproj", "{346F3648-B9A6-456E-A174-FE7115480B2F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F4B28214-4AB2-4677-B03A-5CC98E5211F0}"
+	ProjectSection(SolutionItems) = preProject
+		start.sh = start.sh
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
