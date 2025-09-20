@@ -19,8 +19,11 @@
     
 }
 
+
+
 .devicons {
     font-size: 2rem;
+    color: var(--mw-light-color);
 }
 
 @media (min-width: 992px) {
@@ -34,9 +37,11 @@
     .subTitle {
         font-size: 1.5rem;
         font-family: var(--mw-body-font);
+        color: var(--mw-light-color);
     }
 
     .devicons {
         font-size: 2.5rem;
+        color: var(--mw-light-color);
     }
 }
